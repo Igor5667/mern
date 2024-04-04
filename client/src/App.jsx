@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import MyForm from './components/MyForm'
 
 function App() {
   const [usersList, setUsersList] = useState([])
+  const [show, setShow] = useState(false)
 
   async function fetchData(){
-    console.log("Im fething")
+    setShow(!show)
     try{
       const res = await fetch("http://localhost:8080/api/users", {method: "GET"})
       if(!res.ok){
@@ -20,17 +20,35 @@ function App() {
     }
   }
 
+  const deleteUser = async (userId)=>{
+    
+    const confirmation = window.confirm("Czy na pewno chces skasować użytkownika?")
+    if(!confirmation) return
+
+    try{
+      const res = await fetch(`http://localhost:8080/api/users/${userId}`, {method: "DELETE"})
+      if(!res.ok) throw new Error("Error response is not ok")
+      fetchData() //odswierzanie widoku
+    }catch(err){
+      console.log(`Deleting problem with user: ${err.message}`)
+    }
+  }
+
+  
+  let usersListToShow = usersList.map((user)=>{
+      return (<li key={user._id} onClick={()=>deleteUser(user._id)}>
+        Name: {user.name}<br/>  E-mail: {user.email}<br/> wiek: {user.age}
+      </li>)
+      })
+
   return (
     <>
     <h1>List of Users</h1>
+    <MyForm/>
     <h2>Users:</h2>
-    <button onClick={fetchData}>Pobierz dane</button>
+    <button onClick={fetchData}>{show ? "Ukryj dane" : "Pokaż dane"}</button>
     <ul>
-      {usersList.map((user)=>{
-      return (<li key={user._id}>
-        name: {user.name}; email: {user.email}; wiek: {user.age}
-      </li>)
-      })}
+      {show && usersListToShow}
     </ul>
     </>
   )
