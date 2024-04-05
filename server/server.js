@@ -31,6 +31,17 @@ app.get("/api/users", async (req, res)=>{
     }
 })
 
+app.post("/api/users", async(req, res)=>{
+    try{
+        const newUser = new User(req.body)
+        await newUser.save()
+        res.status(201).json(newUser)
+    } catch(err){
+        console.log(`POST ERROR ${err.message}`)
+        req.status(400).json(err)
+    }
+})
+
 app.delete("/api/users/:id", async (req, res)=>{
     const userId = req.params.id
     console.log(userId)

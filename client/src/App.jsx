@@ -44,7 +44,7 @@ function App() {
   return (
     <>
     <h1>List of Users</h1>
-    <MyForm/>
+    <MyForm updateUsersList={fetchData}/>
     <h2>Users:</h2>
     <button onClick={fetchData}>{show ? "Ukryj dane" : "Pokaż dane"}</button>
     <ul>
