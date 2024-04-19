@@ -1,18 +1,29 @@
 import { useState } from 'react'
 
 
-function MyForm({updateUsersList}) {
+function MyForm() {
   const [newUser, setNewUser] = useState({name:"", email:"", age:0})
 
   async function submitHandler(e){
     e.preventDefault()
-    console.log("hejka")
+    
+    const formData = new FormData()
+    formData.append("name", newUser.name)
+    formData.append("age", newUser.age)
+    formData.append("email", newUser.email)
+
+    console.log("FormData value")
+    for(let [key, values] of formData.entries){
+      console.log(`${key}: ${values}`)
+    }
+
     try{
-      const response = await fetch("http://localhost:8080/api/users",{
-        method: "POST",
-        headers: {'content-type':'application/json'},
-        body: JSON.stringify(newUser)
-      })
+      const response = await axios.post("http://localhost:8080/api/users", formData)
+      // const response = await fetch("http://localhost:8080/api/users",{
+      //   method: "POST",
+      //   headers: {'content-type':'application/json'},
+      //   body: JSON.stringify(newUser)
+      // })
 
       if(!response.ok){
         throw new Error(`Network response was not ok ${response.status}`)
@@ -21,7 +32,7 @@ function MyForm({updateUsersList}) {
       const data = await response.json()
       console.log(`użytkownik dodany ${data}`)
       setNewUser({name:"", email:"", age:0})
-      updateUsersList()
+      //updateUsersList()
     } catch(err){
       console.error(`Jakiś problem z twoja wiadomoscia: ${err.message}`)
     }

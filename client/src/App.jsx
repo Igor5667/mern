@@ -1,55 +1,31 @@
 import { useState } from 'react'
 import './App.css'
+import UserList from './components/UserList'
+import {Routes, Route, Link, useNavigate, Router} from 'react-router-dom'
 import MyForm from './components/MyForm'
 
 function App() {
-  const [usersList, setUsersList] = useState([])
-  const [show, setShow] = useState(false)
-
-  async function fetchData(){
-    setShow(!show)
-    try{
-      const res = await fetch("http://localhost:8080/api/users", {method: "GET"})
-      if(!res.ok){
-        throw new Error(`network response was not ok: ${res.status}`)
-      }
-      const data = await res.json()
-      setUsersList(data)
-    }catch(err){
-      console.log("Error:", err)
-    }
-  }
-
-  const deleteUser = async (userId)=>{
-    
-    const confirmation = window.confirm("Czy na pewno chces skasować użytkownika?")
-    if(!confirmation) return
-
-    try{
-      const res = await fetch(`http://localhost:8080/api/users/${userId}`, {method: "DELETE"})
-      if(!res.ok) throw new Error("Error response is not ok")
-      fetchData() //odswierzanie widoku
-    }catch(err){
-      console.log(`Deleting problem with user: ${err.message}`)
-    }
-  }
-
-  
-  let usersListToShow = usersList.map((user)=>{
-      return (<li key={user._id} onClick={()=>deleteUser(user._id)}>
-        Name: {user.name}<br/>  E-mail: {user.email}<br/> wiek: {user.age}
-      </li>)
-      })
+  const navigate = useNavigate()
 
   return (
     <>
     <h1>List of Users</h1>
-    <MyForm updateUsersList={fetchData}/>
-    <h2>Users:</h2>
-    <button onClick={fetchData}>{show ? "Ukryj dane" : "Pokaż dane"}</button>
-    <ul>
-      {show && usersListToShow}
-    </ul>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/users">Show Users List</Link>
+          </li>
+          <li>
+            <button onClick={(()=>navigate("/add-user"))}>Add new user</button>
+          </li>
+        </ul>
+      </nav>
+
+      <Routes>
+        <Route path='/users' element={<UserList/>} />
+        <Route path='/add-user' element={<MyForm/>} />
+        <Route path='/' element={<div><h1>Welcome to Prison Manager</h1></div>} />
+      </Routes>
     </>
   )
 }
